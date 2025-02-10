@@ -3,12 +3,12 @@ import pandas as pd
 from PIL import Image
 
 # Load dataset (replace with your actual dataset)
-df = pd.read_csv("nykaa_products.csv")  # Ensure dataset has columns: name, price, url, skin_type
+df = pd.read_csv("skincare_data.csv")  # Ensure dataset has columns: name, price, url, skin_type
 
 # Sidebar user inputs
 st.sidebar.header("Product Filters")
-skin_type = st.sidebar.selectbox("Select Skin Type", df["skin_type"].unique())
-price_range = st.sidebar.slider("Select Price Range", int(df["price"].min()), int(df["price"].max()), (500, 2000))
+skin_type = st.sidebar.selectbox("Select Skin Type", df["Skin Type"].unique())
+price_range = st.sidebar.slider("Select Price Range", int(df["Price"].min()), int(df["Price"].max()), (500, 2000))
 
 # Filter dataset based on user inputs
 filtered_df = df[(df["skin_type"] == skin_type) & (df["price"].between(price_range[0], price_range[1]))]
