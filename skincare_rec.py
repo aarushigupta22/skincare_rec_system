@@ -61,7 +61,7 @@ def main():
 
     st.title("Select Products You Like And Reject the ones you Don't!")
     if "current_index" not in st.session_state:
-        st.session_state.current_index = random.randint(0,10)
+        st.session_state.current_index = random.randint(0,200)
     if "accepted" not in st.session_state:
         st.session_state.accepted = []
     if "rejected" not in st.session_state:
@@ -96,7 +96,7 @@ def main():
             filtered_df,
             cosine_sim_df
         )
-        if recommendations.empty:  # ✅ Proper way to check if DataFrame is empty
+        if recommendations.empty:
             st.write("⚠️ No recommendations available.")
         for _, row in recommendations.iterrows():
             col1, col2 = st.columns([1, 3])
