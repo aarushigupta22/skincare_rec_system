@@ -11,14 +11,14 @@ def filter_products(df, min_price, max_price, selected_skin_types, excluded_bran
     # Filter by price range
     df = df[(df['Price'] >= min_price) & (df['Price'] <= max_price)]
     # Filter by skin type
-    if selected_skin_types:
-        df = df[df[selected_skin_types].sum(axis=1) > 0]
+    #if selected_skin_types:
+        #df = df[df[selected_skin_types].sum(axis=1) > 0]
     # Remove unwanted brands
     if excluded_brands:
         df = df[~df['Brand'].isin(excluded_brands)]
     return df
 
-def get_recommendation(accepted_products, rejected_products, filtered_df, cosine_sim_df, top_n=5):
+def get_recommendation(accepted_products, rejected_products, filtered_df, cosine_sim_df, selected_skin_types, top_n=5):
     if not accepted_products:
         return "No accepted products selected. Please select at least one product."
     recommended_products = []
@@ -30,7 +30,13 @@ def get_recommendation(accepted_products, rejected_products, filtered_df, cosine
         try:
             idx = filtered_df[filtered_df["Name"] == product_name].index[0]
             sim_scores = list(enumerate(cosine_sim_df.iloc[idx].values))
+            
+            for i, score in sim_scores:
+                skin_match = filtered_df.iloc[i][selected_skin_types].sum()  # Check skin type match
+                sim_scores[i] = (i, score * (1 + 0.5 * skin_match))
+
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
             top_indices = [
                 i[0] for i in sim_scores
                 if i[0] < len(filtered_df) and filtered_df.iloc[i[0]]["Name"] not in seen_products
@@ -125,7 +131,8 @@ def main():
             st.session_state.accepted,
             st.session_state.rejected,
             filtered_df,
-            cosine_sim_df
+            cosine_sim_df,
+            selected_skin_types
         )
         if recommendations.empty:
             st.write("Sorry, no recommendations available for your chosen products.")
