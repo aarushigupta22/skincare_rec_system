@@ -19,27 +19,45 @@ def filter_products(df, min_price, max_price, selected_skin_types, excluded_bran
     return df
 
 def get_recommendation(accepted_products, rejected_products, filtered_df, cosine_sim_df, top_n=5):
+    if not accepted_products:
+        return "No accepted products selected. Please select at least one product."
     recommended_products = []
     final_recommendations = []
-    seen_products = set(accepted_products + rejected_products)  
+    seen_products = set(accepted_products + rejected_products)
     for product_name in accepted_products:
         if product_name not in filtered_df["Name"].values:
-            continue  # Skip if product not found
-        idx = filtered_df[filtered_df["Name"] == product_name].index[0]
-        sim_scores = list(enumerate(cosine_sim_df.iloc[idx].values))
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        top_indices = [i[0] for i in sim_scores if filtered_df.iloc[i[0]]["Name"] not in seen_products][:top_n]
-        recommended_products.extend(filtered_df.iloc[top_indices][["Name", "Price", "URL", "Image"]].to_dict(orient="records"))
-        seen_products.update(filtered_df.iloc[top_indices]["Name"].tolist())
-    for product in recommended_products:
-        if product["Name"] in rejected_products:
             continue 
-        final_recommendations.append(product)
-    final_recommendations = final_recommendations[:top_n]
+        try:
+            idx = filtered_df[filtered_df["Name"] == product_name].index[0]
+            sim_scores = list(enumerate(cosine_sim_df.iloc[idx].values))
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+            top_indices = [
+                i[0] for i in sim_scores
+                if i[0] < len(filtered_df) and filtered_df.iloc[i[0]]["Name"] not in seen_products
+            ][:top_n]
+
+            recommended_products.extend(filtered_df.iloc[top_indices][["Name", "Price", "URL", "Image"]].to_dict(orient="records"))
+            seen_products.update(filtered_df.iloc[top_indices]["Name"].tolist())
+        except IndexError:
+            continue  
+
+    if not recommended_products:
+        return pd.DataFrame()
+
+    final_recommendations = recommended_products[:top_n]
     return pd.DataFrame(final_recommendations)
+
 
 def main():
     st.title("Nykaa Skincare Recommender")
+    with st.expander("📖 How the Recommendation System Works (Click to Expand)"):
+        st.write("""
+        - The system uses **TF-IDF** to extract important product features.
+        - **Cosine Similarity** is applied to find similar products.
+        - **Filters:** Users select **price, skin type, and brands to exclude**.
+        - **Interactive Selection:** Users **accept/reject** products dynamically.
+        - The system learns from this and **adjusts recommendations**.
+        """)
     df = load_data()
     min_price = 0
     max_price = st.slider("Select Price Range", min_price, int(df['Price'].max()),1000)
@@ -94,7 +112,8 @@ def main():
             cosine_sim_df
         )
         if recommendations.empty:
-            st.write("⚠️ No recommendations available.")
+            st.write("Sorry, no recommendations available for your chosen products.")
+            st.write("Please retry ⬇️")
         for _, row in recommendations.iterrows():
             col1, col2 = st.columns([1, 3])
             with col1:
