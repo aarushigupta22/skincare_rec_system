@@ -39,9 +39,10 @@ def get_recommendation(accepted_products, rejected_products, filtered_df, cosine
     return pd.DataFrame(final_recommendations)
 
 def main():
-    st.title("Nykaa Product Recommender")
+    st.title("Nykaa Skincare Recommender")
     df = load_data()
-    min_price, max_price = st.slider("Select Price Range", 0, int(df['Price'].max()), (100, 1000))
+    min_price = 0
+    max_price = st.slider("Select Price Range", min_price, int(df['Price'].max()),1000)
     
     # User selects skin type
     skin_types = ['normal', 'dry', 'oily', 'sensitive', 'combination']
@@ -59,7 +60,7 @@ def main():
     cosine_sim_df = pd.DataFrame(cosine_sim, index=filtered_df["Cleaned_Name"], columns=filtered_df["Cleaned_Name"])
     image_filtered_df = filtered_df[filtered_df["Image"].notna() & (filtered_df["Image"] != "N/A")]
 
-    st.title("Select Products You Like And Reject the ones you Don't!")
+    st.subheader("Select Products You Like And Reject the ones you Don't!")
     if "current_index" not in st.session_state:
         st.session_state.current_index = random.randint(0,200)
     if "accepted" not in st.session_state:
@@ -68,20 +69,16 @@ def main():
         st.session_state.rejected = []
     if st.session_state.current_index < len(image_filtered_df):
         row = image_filtered_df.iloc[st.session_state.current_index]
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.image(row['Image'], width=100)
-        with col2:
-            st.write(f"**{row['Name']}**")
-            st.write(f"₹ {row['Price']}")
-            
-        colA, colB = st.columns(2)
+        st.image(row['Image'], width=200)
+        st.write(f"**{row['Name']}**")
+        st.write(f"₹ {row['Price']}")
+        colA, colB = st.columns([1,1])
         with colA:
-            if st.button("✅ Accept"):
+            if st.button("✅ Accept", use_container_width=True):
                 st.session_state.accepted.append(row["Name"])
                 st.session_state.current_index += 1
         with colB:
-            if st.button("❌ Reject"):
+            if st.button("❌ Reject", use_container_width=True):
                 st.session_state.rejected.append(row["Name"])
                 st.session_state.current_index += 1
     else:
@@ -106,6 +103,8 @@ def main():
                     st.image(image_url, width=100)
                 else:
                     st.write("No Image Available*")
+                with st.expander("View Image"):
+                    st.image(image_url, width=250)
             with col2:
                 st.write(f"**{row['Name']}**")
                 st.write(f"₹{row['Price']}  |  [ View Product on the website!]({row['URL']})")
