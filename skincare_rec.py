@@ -52,24 +52,28 @@ def main():
     st.title("Nykaa Skincare Recommender")
     with st.expander("📖 How the AI Recommends you Skincare"):
         st.write("""
-            Ever feel like picking the right skincare is as tricky as finding your perfect match? Well, this system works kind of like a skincare matchmaking app! 💕
-            1️⃣ Setting Your Preferences
-            First, you tell the system what you’re looking for—your skin type, budget, and brands you don’t particularly like.
-                 
-            2️⃣ Swiping Through Options
-            It shows you random skincare products with images, and you decide whether to accept or reject them, just like swiping left or right.
-                 
-            3️⃣ Understanding Your Taste
-            Behind the scenes, the AI breaks down product names using TF-IDF (basically a way to understand key words like "hyaluronic," "glow," or "sunscreen").
-            Then, it uses cosine similarity to compare products and find others that match what you liked. It's a hybrid AI Model that combines text-based analysis (product features) and user preferences to make smart recommendations.
-                 
-            4️⃣ Learning From Your Choices
-            If you accept a Vitamin C serum, the system starts recommending more Vitamin C products.
-            If you reject expensive serums, it learns to avoid similar high-priced items.
-                 
-            5️⃣ Your Personalized Skincare Lineup
-            Once you’ve accepted 5 products, the system curates a personalized list of recommendations based on what you loved (and avoids what you didn’t!).
+        Ever feel like picking the right skincare is as tricky as finding your perfect match?  
+        Well, this system works kind of like a skincare matchmaking app! 💕  
+
+        1️⃣ **Setting Your Preferences**  
+        First, you tell the system what you’re looking for—your skin type, budget, and brands you don’t particularly like.  
+
+        2️⃣ **Swiping Through Options**  
+        It shows you random skincare products with images, and you decide whether to accept or reject them, just like swiping left or right.  
+
+        3️⃣ **Understanding Your Taste**  
+        Behind the scenes, the AI breaks down product names using **TF-IDF** (basically a way to understand key words like "hyaluronic," "glow," or "sunscreen").  
+        Then, it uses **cosine similarity** to compare products and find others that match what you liked.  
+        It's a **hybrid AI model** that combines **text-based analysis (product features) and user preferences** to make smart recommendations.  
+
+        4️⃣ **Learning From Your Choices**  
+        - If you **accept** a Vitamin C serum, the system starts recommending more Vitamin C products.  
+        - If you **reject** expensive serums, it learns to avoid similar high-priced items.  
+
+        5️⃣ **Your Personalized Skincare Lineup**  
+        Once you’ve **accepted 5 products**, the system **curates a personalized list of recommendations** based on what you loved (and avoids what you didn’t!).  
         """)
+
     df = load_data()
     min_price = 0
     max_price = st.slider("Select Price Range", min_price, int(df['Price'].max()),1000)
